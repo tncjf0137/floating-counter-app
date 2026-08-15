@@ -8,12 +8,22 @@ import android.os.Bundle
 import android.provider.Settings
 import android.widget.Button
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import java.text.SimpleDateFormat
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var etTarget: EditText
+    private lateinit var etExamDate: EditText
+    private lateinit var tvDDay: TextView
+    private lateinit var tvExamDate: TextView
+    private lateinit var tvTodayCount: TextView
+    private lateinit var tvTotalCount: TextView
+    private lateinit var heatmapView: HeatmapView
+
     private val prefs by lazy { getSharedPreferences("counter_prefs", Context.MODE_PRIVATE) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -21,15 +31,24 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         etTarget = findViewById(R.id.etTarget)
+        etExamDate = findViewById(R.id.etExamDate)
+        tvDDay = findViewById(R.id.tvDDay)
+        tvExamDate = findViewById(R.id.tvExamDate)
+        tvTodayCount = findViewById(R.id.tvTodayCount)
+        tvTotalCount = findViewById(R.id.tvTotalCount)
+        heatmapView = findViewById(R.id.heatmapView)
+
         val btnStart = findViewById<Button>(R.id.btnStart)
         val btnStop = findViewById<Button>(R.id.btnStop)
 
-        // 저장된 목표값 불러오기 (기본값 50)
         val savedTarget = prefs.getInt("saved_target", 50)
+        val savedExamDate = prefs.getString("exam_date", "2026-12-06") ?: "2026-12-06"
+
         etTarget.setText(savedTarget.toString())
+        etExamDate.setText(savedExamDate)
 
         btnStart.setOnClickListener {
-            saveTargetValue()
+            saveSettings()
             checkOverlayPermissionAndStart()
         }
 
@@ -40,10 +59,70 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun saveTargetValue() {
+    override fun onResume() {
+        super.onResume()
+        updateDDayUI()
+        loadRecordData()
+    }
+
+    private fun updateDDayUI() {
+        val examDateStr = prefs.getString("exam_date", "2026-12-06") ?: "2026-12-06"
+        val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        try {
+            val examDate = sdf.parse(examDateStr)
+            val today = Calendar.getInstance().apply {
+                set(Calendar.HOUR_OF_DAY, 0)
+                set(Calendar.MINUTE, 0)
+                set(Calendar.SECOND, 0)
+                set(Calendar.MILLISECOND, 0)
+            }.time
+
+            if (examDate != null) {
+                val diffMillis = examDate.time - today.time
+                val diffDays = (diffMillis / (1000 * 60 * 60 * 24)).toInt()
+
+                tvDDay.text = when {
+                    diffDays > 0 -> "시험 D-$diffDays"
+                    diffDays == 0 -> "시험 D-Day (오늘!)"
+                    else -> "시험 D+${-diffDays}"
+                }
+                tvExamDate.text = "목표 시험일: $examDateStr"
+            }
+        } catch (e: Exception) {
+            tvDDay.text = "D-Day 계산 불가"
+        }
+    }
+
+    private fun loadRecordData() {
+        val todayStr = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+        val todayCount = prefs.getInt("daily_$todayStr", 0)
+        val totalCount = prefs.getInt("total_count", 0)
+
+        tvTodayCount.text = "오늘 학습: ${todayCount}개"
+        tvTotalCount.text = "누적 학습: ${totalCount}개"
+
+        val allPrefs = prefs.all
+        val records = mutableMapOf<String, Int>()
+        for ((key, value) in allPrefs) {
+            if (key.startsWith("daily_") && value is Int) {
+                val date = key.removePrefix("daily_")
+                records[date] = value
+            }
+        }
+        heatmapView.setRecords(records)
+    }
+
+    private fun saveSettings() {
         val targetStr = etTarget.text.toString().trim()
         val targetVal = if (targetStr.isNotEmpty()) targetStr.toInt() else 50
-        prefs.edit().putInt("saved_target", targetVal).apply()
+        val examDateStr = etExamDate.text.toString().trim().ifEmpty { "2026-12-06" }
+
+        prefs.edit()
+            .putInt("saved_target", targetVal)
+            .putString("exam_date", examDateStr)
+            .apply()
+
+        updateDDayUI()
     }
 
     private fun checkOverlayPermissionAndStart() {

@@ -1,59 +1,166 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center"
-    android:orientation="vertical"
-    android:padding="24dp">
+    android:fillViewport="true">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Anki 플로팅 카운터"
-        android:textSize="22sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="24dp"/>
-
-    <!-- 목표 카드 수 입력 -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:layout_marginBottom="24dp">
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:padding="20dp">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="목표 카드 수: "
-            android:textSize="16sp"
-            android:textStyle="bold" />
+            android:text="Anki 플로팅 카운터"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="16dp"/>
 
-        <EditText
-            android:id="@+id/etTarget"
-            android:layout_width="0dp"
+        <!-- D-Day 카드 -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:hint="예: 50"
-            android:inputType="number"
-            android:maxLength="4"
-            android:textSize="16sp"/>
+            android:background="#E8F5E9"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:id="@+id/tvDDay"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="시험 D-Day 계산 중..."
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="#1B5E20"/>
+
+            <TextView
+                android:id="@+id/tvExamDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="목표 시험일: 2026-12-06"
+                android:textSize="13sp"
+                android:textColor="#558B2F"
+                android:layout_marginTop="4dp"/>
+        </LinearLayout>
+
+        <!-- 오늘 현황 요약 카드 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#F5F5F5"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:id="@+id/tvTodayCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="오늘 학습: 0개"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#2E7D32"/>
+
+            <TextView
+                android:id="@+id/tvTotalCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="누적 학습: 0개"
+                android:textSize="14sp"
+                android:textColor="#757575"
+                android:layout_marginTop="4dp"/>
+        </LinearLayout>
+
+        <!-- 최근 2주 학습 Heatmap -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="최근 2주 학습 잔디"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp"/>
+
+        <com.example.floatingcounter.HeatmapView
+            android:id="@+id/heatmapView"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginBottom="20dp"/>
+
+        <!-- 목표 카드 수 & 시험일 설정 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="20dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="8dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="일일 목표 카드 수: "
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+                <EditText
+                    android:id="@+id/etTarget"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="50"
+                    android:inputType="number"
+                    android:maxLength="4"
+                    android:textSize="15sp"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="시험일 설정 (YYYY-MM-DD): "
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <EditText
+                    android:id="@+id/etExamDate"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="2026-12-06"
+                    android:inputType="date"
+                    android:textSize="14sp"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btnStart"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:text="플로팅 카운터 시작"
+            android:textSize="16sp"
+            android:layout_marginBottom="10dp"/>
+
+        <Button
+            android:id="@+id/btnStop"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:text="플로팅 카운터 정지 (끄기)"
+            android:textSize="16sp"
+            android:backgroundTint="#FF5252"/>
+
     </LinearLayout>
-
-    <Button
-        android:id="@+id/btnStart"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:text="플로팅 카운터 시작"
-        android:textSize="16sp"
-        android:layout_marginBottom="12dp"/>
-
-    <Button
-        android:id="@+id/btnStop"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:text="플로팅 카운터 정지 (끄기)"
-        android:textSize="16sp"
-        android:backgroundTint="#FF5252"/>
-
-</LinearLayout>
+</ScrollView>
