@@ -1,32 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="120dp"
-    android:layout_height="120dp"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="160dp"
+    android:layout_height="160dp"
     android:background="@drawable/bg_floating"
-    android:gravity="center"
-    android:orientation="vertical"
     android:padding="8dp">
 
-    <!-- 숫자 표시 및 터치 영역 (크게 확대) -->
+    <!-- 닫기(X) 버튼 -->
     <TextView
-        android:id="@+id/tvCount"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
+        android:id="@+id/btnClose"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
         android:gravity="center"
-        android:text="0"
-        android:textColor="#FFFFFF"
-        android:textSize="36sp"
+        android:text="✕"
+        android:textColor="#FF8A80"
+        android:textSize="18sp"
         android:textStyle="bold" />
 
-    <!-- 리셋 버튼 -->
-    <TextView
-        android:id="@+id/tvReset"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="4dp"
-        android:text="리셋"
-        android:textColor="#FFCDD2"
-        android:textSize="13sp" />
+    <!-- 중앙 컨텐츠 (숫자 + 진행률) -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:layout_centerInParent="true">
 
-</LinearLayout>
+        <!-- 카운트 숫자 -->
+        <TextView
+            android:id="@+id/tvCount"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:text="0"
+            android:textColor="#FFFFFF"
+            android:textSize="44sp"
+            android:textStyle="bold" />
+
+        <!-- 진행률 표시 (예: 15/50 (30%)) -->
+        <TextView
+            android:id="@+id/tvProgress"
+            android:layout_width="match_parent"
+            android:layout_height="28dp"
+            android:gravity="center"
+            android:text="0 / 50 (0%)"
+            android:textColor="#B0BEC5"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+</RelativeLayout>
