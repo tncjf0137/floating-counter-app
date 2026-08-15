@@ -6,6 +6,7 @@ import android.content.Intent
 import android.graphics.PixelFormat
 import android.os.Build
 import android.os.IBinder
+import android.util.TypedValue
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -41,9 +42,16 @@ class FloatingService : Service() {
             WindowManager.LayoutParams.TYPE_PHONE
         }
 
+        // dp를 픽셀(px) 단위로 정확히 변환 (160dp 크기로 강제 지정)
+        val sizeInPx = TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP,
+            160f,
+            resources.displayMetrics
+        ).toInt()
+
         val params = WindowManager.LayoutParams(
-            WindowManager.LayoutParams.WRAP_CONTENT,
-            WindowManager.LayoutParams.WRAP_CONTENT,
+            sizeInPx, // 가로 크기 160dp 강제 적용
+            sizeInPx, // 세로 크기 160dp 강제 적용
             layoutParamsType,
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
             PixelFormat.TRANSLUCENT
@@ -85,8 +93,7 @@ class FloatingService : Service() {
                 MotionEvent.ACTION_UP -> {
                     val diffX = abs(event.rawX - initialTouchX)
                     val diffY = abs(event.rawY - initialTouchY)
-                    // 단순 터치(드래그가 아닌 경우) 카운트 증가
-                    if (diffX < 10 && diffY < 10) {
+                    if (diffX < 25 && diffY < 25) {
                         count++
                         tvCount.text = count.toString()
                         saveCount()
