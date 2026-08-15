@@ -2,10 +2,11 @@ package com.example.floatingcounter
 
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.widget.Button
-import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 
 class MainActivity : AppCompatActivity() {
@@ -14,27 +15,39 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val statusText = findViewById<TextView>(R.id.statusText)
+        val btnStart = findViewById<Button>(R.id.btnStart)
+        val btnStop = findViewById<Button>(R.id.btnStop)
 
-        findViewById<Button>(R.id.btnStart).setOnClickListener {
+        btnStart.setOnClickListener {
+            checkOverlayPermissionAndStart()
+        }
+
+        btnStop.setOnClickListener {
+            val intent = Intent(this, FloatingService::class.java)
+            stopService(intent)
+            Toast.makeText(this, "플로팅 카운터를 종료했습니다.", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun checkOverlayPermissionAndStart() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (!Settings.canDrawOverlays(this)) {
-                statusText.text = "권한 허용 후 앱으로 돌아와서 다시 눌러주세요."
                 val intent = Intent(
                     Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
                     Uri.parse("package:$packageName")
                 )
                 startActivity(intent)
+                Toast.makeText(this, "다른 앱 위에 그리기 권한을 허용해 주세요.", Toast.LENGTH_LONG).show()
             } else {
-                startService(Intent(this, FloatingService::class.java))
-                statusText.text = "카운터가 실행 중입니다. 홈 화면에서도 보여요."
+                startFloatingService()
             }
+        } else {
+            startFloatingService()
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        if (Settings.canDrawOverlays(this)) {
-            findViewById<TextView>(R.id.statusText).text = "권한이 허용되었습니다. 시작 버튼을 눌러주세요."
-        }
+    private fun startFloatingService() {
+        val intent = Intent(this, FloatingService::class.java)
+        startService(intent)
     }
 }

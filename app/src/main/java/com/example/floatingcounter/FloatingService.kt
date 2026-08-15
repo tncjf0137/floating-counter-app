@@ -1,6 +1,7 @@
 package com.example.floatingcounter
 
 import android.app.Service
+import android.content.Context
 import android.content.Intent
 import android.graphics.PixelFormat
 import android.os.Build
@@ -17,16 +18,23 @@ class FloatingService : Service() {
 
     private lateinit var windowManager: WindowManager
     private lateinit var floatingView: View
+    private lateinit var tvCount: TextView
+    private lateinit var tvReset: TextView
+
     private var count = 0
+    private val prefs by lazy { getSharedPreferences("counter_prefs", Context.MODE_PRIVATE) }
 
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onCreate() {
         super.onCreate()
-        windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
+
+        // 저장된 카운트 불러오기
+        count = prefs.getInt("saved_count", 0)
+
         floatingView = LayoutInflater.from(this).inflate(R.layout.floating_widget, null)
 
-        val layoutType = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        val layoutParamsType = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
         } else {
             @Suppress("DEPRECATION")
@@ -36,49 +44,52 @@ class FloatingService : Service() {
         val params = WindowManager.LayoutParams(
             WindowManager.LayoutParams.WRAP_CONTENT,
             WindowManager.LayoutParams.WRAP_CONTENT,
-            layoutType,
+            layoutParamsType,
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
             PixelFormat.TRANSLUCENT
-        )
-        params.gravity = Gravity.TOP or Gravity.START
-        params.x = 100
-        params.y = 300
+        ).apply {
+            gravity = Gravity.TOP or Gravity.START
+            x = 100
+            y = 200
+        }
 
-        val countText = floatingView.findViewById<TextView>(R.id.countText)
-        countText.text = count.toString()
+        windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
+        windowManager.addView(floatingView, params)
 
+        tvCount = floatingView.findViewById(R.id.tvCount)
+        tvReset = floatingView.findViewById(R.id.tvReset)
+
+        tvCount.text = count.toString()
+
+        // 드래그 및 클릭 처리
         var initialX = 0
         var initialY = 0
         var initialTouchX = 0f
         var initialTouchY = 0f
-        var isDrag = false
 
-        // countText 자체를 탭하면 카운트 증가, 드래그하면 위치 이동
-        countText.setOnTouchListener { _, event ->
+        floatingView.setOnTouchListener { _, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
                     initialX = params.x
                     initialY = params.y
                     initialTouchX = event.rawX
                     initialTouchY = event.rawY
-                    isDrag = false
                     true
                 }
                 MotionEvent.ACTION_MOVE -> {
-                    val dx = (event.rawX - initialTouchX).toInt()
-                    val dy = (event.rawY - initialTouchY).toInt()
-                    if (abs(dx) > 12 || abs(dy) > 12) isDrag = true
-                    if (isDrag) {
-                        params.x = initialX + dx
-                        params.y = initialY + dy
-                        windowManager.updateViewLayout(floatingView, params)
-                    }
+                    params.x = initialX + (event.rawX - initialTouchX).toInt()
+                    params.y = initialY + (event.rawY - initialTouchY).toInt()
+                    windowManager.updateViewLayout(floatingView, params)
                     true
                 }
                 MotionEvent.ACTION_UP -> {
-                    if (!isDrag) {
+                    val diffX = abs(event.rawX - initialTouchX)
+                    val diffY = abs(event.rawY - initialTouchY)
+                    // 단순 터치(드래그가 아닌 경우) 카운트 증가
+                    if (diffX < 10 && diffY < 10) {
                         count++
-                        countText.text = count.toString()
+                        tvCount.text = count.toString()
+                        saveCount()
                     }
                     true
                 }
@@ -86,12 +97,15 @@ class FloatingService : Service() {
             }
         }
 
-        floatingView.findViewById<TextView>(R.id.resetButton).setOnClickListener {
+        tvReset.setOnClickListener {
             count = 0
-            countText.text = count.toString()
+            tvCount.text = count.toString()
+            saveCount()
         }
+    }
 
-        windowManager.addView(floatingView, params)
+    private fun saveCount() {
+        prefs.edit().putInt("saved_count", count).apply()
     }
 
     override fun onDestroy() {
