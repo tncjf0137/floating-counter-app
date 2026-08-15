@@ -2,28 +2,32 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:gravity="center"
+    android:orientation="vertical"
     android:padding="24dp">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="플로팅 카운터"
+        android:text="Anki 플로팅 카운터"
         android:textSize="22sp"
-        android:layout_marginBottom="24dp" />
+        android:textStyle="bold"
+        android:layout_marginBottom="32dp"/>
 
     <Button
         android:id="@+id/btnStart"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="플로팅 카운터 시작" />
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:text="플로팅 카운터 시작"
+        android:textSize="18sp"
+        android:layout_marginBottom="16dp"/>
 
-    <TextView
-        android:id="@+id/statusText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="버튼을 누르면 오버레이 권한을 요청합니다." />
+    <Button
+        android:id="@+id/btnStop"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:text="플로팅 카운터 정지 (끄기)"
+        android:textSize="18sp"
+        android:backgroundTint="#FF5252"/>
 
 </LinearLayout>
