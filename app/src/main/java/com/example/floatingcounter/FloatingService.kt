@@ -108,16 +108,14 @@ class FloatingService : Service() {
                     val touchDuration = System.currentTimeMillis() - touchStartTime
 
                     if (diffX < 25 && diffY < 25) {
-                        loadTodayData() // 날짜 변경 여부 최신화
+                        loadTodayData()
 
                         if (touchDuration >= 500) {
-                            // 500ms 이상 길게 누르면 -1 차감
                             if (count > 0) {
                                 count--
                                 Toast.makeText(this, "-1 차감되었습니다.", Toast.LENGTH_SHORT).show()
                             }
                         } else {
-                            // 짧게 누르면 +1 증가
                             count++
                         }
                         saveCount()
